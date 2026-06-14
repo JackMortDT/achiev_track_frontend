@@ -1,26 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-pixel-bg: #1a1a2e;
+  --color-pixel-surface: #16213e;
+  --color-pixel-border: #0f3460;
+  --color-pixel-red: #e94560;
+  --color-pixel-cyan: #53d8fb;
+  --color-pixel-text: #e0e0e0;
+  --color-pixel-muted: #7f8c8d;
+  --color-pixel-steam: #1b2838;
+  --color-pixel-ra: #cc9900;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-mono: 'Share Tech Mono', 'Courier New', monospace;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --shadow-pixel: 4px 4px 0px #0f3460;
+  --shadow-pixel-red: 4px 4px 0px #e94560;
+  --shadow-pixel-cyan: 4px 4px 0px #53d8fb;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-pixel-bg);
+  color: #e0e0e0;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
 }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-pixel-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-pixel-border); }
