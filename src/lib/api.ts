@@ -1,0 +1,187 @@
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
+
+export class ApiError extends Error {
+  constructor(public status: number, public data: unknown) {
+    super(`API Error ${status}`)
+    this.name = 'ApiError'
+  }
+}
+
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem('auth_token')
+}
+
+async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getToken()
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+  })
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({ error: 'Unknown error' }))
+    throw new ApiError(res.status, data)
+  }
+
+  if (res.status === 204) return undefined as T
+  return res.json()
+}
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+export interface User {
+  id: string
+  username: string
+  email: string
+  avatar_url: string | null
+  inserted_at: string
+}
+
+export interface PlatformConnection {
+  platform: 'steam' | 'retroachievements'
+  external_id: string
+  connected_at: string
+}
+
+export interface ProfileStats {
+  total_achievements: number
+  total_games: number
+  total_points: number
+}
+
+export interface SyncStatus {
+  allowed: boolean
+  syncs_used: number
+  syncs_remaining: number
+  next_available_at: string | null
+}
+
+export interface Profile {
+  user: User
+  stats: ProfileStats
+  platforms: PlatformConnection[]
+  sync_status: SyncStatus
+}
+
+export interface Achievement {
+  unlocked_at: string
+  achievement_id: string
+  title: string
+  description: string | null
+  points: number
+  image_url: string | null
+  game_title: string
+  platform: string
+  game_external_id: string
+}
+
+export interface Game {
+  user_game_id: string
+  title: string
+  platform: string
+  external_id: string
+  image_url: string | null
+  total_achievements: number
+  unlocked_count: number
+  is_beaten: boolean
+  is_mastered: boolean
+  last_synced_at: string | null
+}
+
+export interface Friend {
+  friendship_id: string
+  user_id: string
+  username: string
+  avatar_url: string | null
+  status: string
+}
+
+export interface LeaderboardEntry {
+  rank: number
+  user_id: string
+  username: string
+  avatar_url: string | null
+  total_points: number
+  is_me: boolean
+}
+
+export interface CompareData {
+  user: ProfileStats
+  friend: ProfileStats & { username: string }
+  shared_games: Array<{
+    title: string
+    platform: string
+    user_unlocked: number
+    friend_unlocked: number
+    total: number
+  }>
+}
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+
+export const auth = {
+  register: (username: string, email: string, password: string) =>
+    apiFetch<{ token: string; user: User }>('/api/register', {
+      method: 'POST',
+      body: JSON.stringify({ username, email, password }),
+    }),
+
+  login: (email: string, password: string) =>
+    apiFetch<{ token: string; user: User }>('/api/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }),
+}
+
+// ── Profile ──────────────────────────────────────────────────────────────────
+
+export const profile = {
+  get: () => apiFetch<Profile>('/api/profile'),
+}
+
+// ── Sync ─────────────────────────────────────────────────────────────────────
+
+export const sync = {
+  status: () => apiFetch<SyncStatus>('/api/sync/status'),
+  trigger: () => apiFetch<{ ok: boolean; syncs_remaining: number; next_available_at: string | null }>('/api/sync', { method: 'POST' }),
+}
+
+// ── Achievements ─────────────────────────────────────────────────────────────
+
+export const achievements = {
+  list: (params?: { platform?: string; sort?: string }) => {
+    const qs = params ? '?' + new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null)) as Record<string, string>
+    ).toString() : ''
+    return apiFetch<Achievement[]>(`/api/achievements${qs}`)
+  },
+}
+
+// ── Games ────────────────────────────────────────────────────────────────────
+
+export const games = {
+  list: (status?: string) => {
+    const qs = status ? `?status=${status}` : ''
+    return apiFetch<Game[]>(`/api/games${qs}`)
+  },
+}
+
+// ── Friends ──────────────────────────────────────────────────────────────────
+
+export const friends = {
+  list: () => apiFetch<Friend[]>('/api/friends'),
+  pending: () => apiFetch<Friend[]>('/api/friends/pending'),
+  add: (username: string) =>
+    apiFetch<Friend>('/api/friends', { method: 'POST', body: JSON.stringify({ username }) }),
+  accept: (friendshipId: string) =>
+    apiFetch<{ ok: boolean }>(`/api/friends/${friendshipId}/accept`, { method: 'PUT' }),
+  remove: (friendshipId: string) =>
+    apiFetch<void>(`/api/friends/${friendshipId}`, { method: 'DELETE' }),
+  leaderboard: () => apiFetch<LeaderboardEntry[]>('/api/friends/leaderboard'),
+  compare: (userId: string) => apiFetch<CompareData>(`/api/friends/${userId}/compare`),
+}
