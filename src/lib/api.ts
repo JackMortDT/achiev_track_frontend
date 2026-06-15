@@ -80,6 +80,13 @@ export interface Achievement {
   game_external_id: string
 }
 
+export interface AchievementsPage {
+  items: Achievement[]
+  total: number
+  page: number
+  per_page: number
+}
+
 export interface Game {
   user_game_id: string
   title: string
@@ -91,6 +98,27 @@ export interface Game {
   is_beaten: boolean
   is_mastered: boolean
   last_synced_at: string | null
+}
+
+export interface GameAchievement {
+  achievement_id: string
+  title: string
+  description: string | null
+  points: number
+  image_url: string | null
+  unlocked: boolean
+  unlocked_at: string | null
+}
+
+export interface GameAchievementsResponse {
+  game: {
+    title: string
+    platform: string
+    external_id: string
+    image_url: string | null
+    total_achievements: number
+  }
+  items: GameAchievement[]
 }
 
 export interface Friend {
@@ -154,11 +182,15 @@ export const sync = {
 // ── Achievements ─────────────────────────────────────────────────────────────
 
 export const achievements = {
-  list: (params?: { platform?: string; sort?: string }) => {
+  list: (params?: { platform?: string; sort?: string; page?: number; per_page?: number }) => {
     const qs = params ? '?' + new URLSearchParams(
-      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null)) as Record<string, string>
+      Object.fromEntries(
+        Object.entries(params)
+          .filter(([, v]) => v != null)
+          .map(([k, v]) => [k, String(v)])
+      )
     ).toString() : ''
-    return apiFetch<Achievement[]>(`/api/achievements${qs}`)
+    return apiFetch<AchievementsPage>(`/api/achievements${qs}`)
   },
 }
 
@@ -169,6 +201,8 @@ export const games = {
     const qs = status ? `?status=${status}` : ''
     return apiFetch<Game[]>(`/api/games${qs}`)
   },
+  gameAchievements: (platform: string, externalId: string) =>
+    apiFetch<GameAchievementsResponse>(`/api/games/${platform}/${externalId}/achievements`),
 }
 
 // ── Friends ──────────────────────────────────────────────────────────────────
@@ -184,4 +218,16 @@ export const friends = {
     apiFetch<void>(`/api/friends/${friendshipId}`, { method: 'DELETE' }),
   leaderboard: () => apiFetch<LeaderboardEntry[]>('/api/friends/leaderboard'),
   compare: (userId: string) => apiFetch<CompareData>(`/api/friends/${userId}/compare`),
+}
+
+// ── Platforms ─────────────────────────────────────────────────────────────────
+
+export const platforms = {
+  connect: (platform: 'steam' | 'retroachievements', external_id: string, api_key?: string) =>
+    apiFetch<PlatformConnection>('/api/me/platforms', {
+      method: 'POST',
+      body: JSON.stringify({ platform, external_id, ...(api_key ? { api_key } : {}) }),
+    }),
+  disconnect: (platform: 'steam' | 'retroachievements') =>
+    apiFetch<{ ok: boolean }>(`/api/me/platforms/${platform}`, { method: 'DELETE' }),
 }

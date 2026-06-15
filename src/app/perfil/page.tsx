@@ -9,6 +9,7 @@ import { PixelCard } from '@/components/PixelCard'
 import { PlatformBadge } from '@/components/PlatformBadge'
 import { SyncButton } from '@/components/SyncButton'
 import { NotificationToast } from '@/components/NotificationToast'
+import { PlatformConnect } from '@/components/PlatformConnect'
 
 export default function PerfilPage() {
   const { token, loading: authLoading } = useAuth()
@@ -17,13 +18,7 @@ export default function PerfilPage() {
   const [error, setError] = useState<string | null>(null)
   const sseMessages = useSSE(token)
 
-  useEffect(() => {
-    if (!authLoading && !token) {
-      router.push('/login')
-      return
-    }
-    if (!token) return
-
+  function loadProfile() {
     profileApi.get()
       .then(setData)
       .catch(err => {
@@ -33,6 +28,16 @@ export default function PerfilPage() {
           setError('Failed to load profile')
         }
       })
+  }
+
+  useEffect(() => {
+    if (!authLoading && !token) {
+      router.push('/login')
+      return
+    }
+    if (!token) return
+    loadProfile()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, authLoading, router])
 
   if (error) {
@@ -84,6 +89,9 @@ export default function PerfilPage() {
           </PixelCard>
         ))}
       </div>
+
+      {/* Platforms */}
+      <PlatformConnect connections={platforms} onUpdate={loadProfile} />
 
       {/* Sync */}
       <PixelCard>

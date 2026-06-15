@@ -6,7 +6,6 @@ import { useAuth } from '@/lib/auth'
 
 const NAV_ITEMS = [
   { href: '/perfil', label: 'PERFIL' },
-  { href: '/logros', label: 'LOGROS' },
   { href: '/juegos', label: 'JUEGOS' },
   { href: '/amigos', label: 'AMIGOS' },
 ]
