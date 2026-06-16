@@ -231,3 +231,64 @@ export const platforms = {
   disconnect: (platform: 'steam' | 'retroachievements') =>
     apiFetch<{ ok: boolean }>(`/api/me/platforms/${platform}`, { method: 'DELETE' }),
 }
+
+// ── Home ─────────────────────────────────────────────────────────────────────
+
+export interface HomeStats {
+  total_achievements: number
+  total_games: number
+  total_points: number
+  friend_rank: number | null
+}
+
+export interface PopularGame {
+  title: string
+  platform: string
+  external_id: string
+  image_url: string | null
+  total_achievements: number
+  player_count: number
+}
+
+export interface HomeData {
+  stats: HomeStats
+  recent_achievements: Achievement[]
+  active_games: Game[]
+  popular_games: PopularGame[]
+}
+
+export const home = {
+  get: () => apiFetch<HomeData>('/api/home'),
+}
+
+// ── Me (account settings) ─────────────────────────────────────────────────────
+
+export interface UserWithConnections extends User {
+  platform_connections: PlatformConnection[]
+}
+
+export const me = {
+  get: () => apiFetch<UserWithConnections>('/api/me'),
+
+  update: (attrs: { username?: string; avatar_url?: string }) =>
+    apiFetch<User>('/api/me', {
+      method: 'PATCH',
+      body: JSON.stringify(attrs),
+    }),
+
+  updatePassword: (current_password: string, new_password: string) =>
+    apiFetch<{ ok: boolean }>('/api/me/password', {
+      method: 'PATCH',
+      body: JSON.stringify({ current_password, new_password }),
+    }),
+
+  delete: () =>
+    apiFetch<void>('/api/me', { method: 'DELETE' }),
+}
+
+// ── Steam SSO ─────────────────────────────────────────────────────────────────
+
+export const steamSSO = {
+  getInitiateUrl: () =>
+    apiFetch<{ steam_url: string }>('/api/auth/steam/initiate'),
+}
