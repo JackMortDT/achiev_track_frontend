@@ -25,7 +25,7 @@ export default function PerfilPage() {
         if (err instanceof ApiError && err.status === 401) {
           router.push('/login')
         } else {
-          setError('Failed to load profile')
+          setError('Error al cargar el perfil')
         }
       })
   }
@@ -57,17 +57,11 @@ export default function PerfilPage() {
       {/* Header */}
       <PixelCard className="flex items-center gap-6">
         <div className="w-16 h-16 bg-pixel-border flex items-center justify-center text-pixel-cyan text-2xl">
-          {user.avatar_url
-            // Avatar URLs are user-generated content from external CDNs (Steam, RetroAchievements).
-            // Using plain <img> intentionally — next/image requires remotePatterns to be configured
-            // per hostname, which is not feasible for arbitrary user avatar CDNs.
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
-            : '●'}
+          {user.avatar_url || '●'}
         </div>
         <div>
           <h1 className="text-pixel-cyan text-xl font-mono">{user.username}</h1>
-          <p className="text-pixel-muted text-xs">Member since {new Date(user.inserted_at).getFullYear()}</p>
+          <p className="text-pixel-muted text-xs">Miembro desde {new Date(user.inserted_at).getFullYear()}</p>
           <div className="flex gap-2 mt-2">
             {platforms.map(p => (
               <PlatformBadge key={p.platform} platform={p.platform} />
@@ -95,7 +89,7 @@ export default function PerfilPage() {
 
       {/* Sync */}
       <PixelCard>
-        <h2 className="text-pixel-text text-sm font-mono mb-3">SYNCHRONIZE</h2>
+        <h2 className="text-pixel-text text-sm font-mono mb-3">SINCRONIZAR</h2>
         <SyncButton initialStatus={sync_status} />
       </PixelCard>
     </div>

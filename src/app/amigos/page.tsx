@@ -53,7 +53,7 @@ export default function AmigosPage() {
       const data = await friendsApi.compare(userId)
       setCompareData(data)
     } catch {
-      setActionError('Failed to load comparison data')
+      setActionError('Error al cargar la comparación')
     }
   }
 
@@ -66,7 +66,7 @@ export default function AmigosPage() {
     } catch (err) {
       if (err instanceof ApiError) {
         const data = err.data as { error?: string }
-        setAddError(data?.error ?? 'Failed to send request')
+        setAddError(data?.error ?? 'Error al enviar la solicitud')
       }
     }
   }
@@ -84,7 +84,7 @@ export default function AmigosPage() {
       setFriendsList(fl)
       setPendingRequests(pr)
     } catch {
-      setActionError('Failed to accept request')
+      setActionError('Error al aceptar la solicitud')
     }
   }
 
@@ -96,7 +96,7 @@ export default function AmigosPage() {
       setLeaderboard(lb)
       setFriendsList(fl)
     } catch {
-      setActionError('Failed to remove friend')
+      setActionError('Error al eliminar amigo')
     }
   }
 
@@ -246,7 +246,7 @@ export default function AmigosPage() {
           {/* Pending requests */}
           {pendingRequests.length > 0 && (
             <div>
-              <h3 className="text-pixel-muted font-mono text-xs mb-2">PENDING REQUESTS</h3>
+              <h3 className="text-pixel-muted font-mono text-xs mb-2">SOLICITUDES PENDIENTES</h3>
               <div className="space-y-2">
                 {pendingRequests.map(req => (
                   <PixelCard key={req.friendship_id} className="flex items-center gap-3">
@@ -255,7 +255,7 @@ export default function AmigosPage() {
                       onClick={() => handleAccept(req.friendship_id)}
                       className="text-xs font-mono text-pixel-cyan border border-pixel-cyan px-2 py-1 hover:bg-pixel-cyan hover:text-pixel-bg transition-colors"
                     >
-                      ACCEPT
+                      ACEPTAR
                     </button>
                   </PixelCard>
                 ))}
@@ -265,9 +265,9 @@ export default function AmigosPage() {
 
           {/* Friends list */}
           <div>
-            <h3 className="text-pixel-muted font-mono text-xs mb-2">FRIENDS</h3>
+            <h3 className="text-pixel-muted font-mono text-xs mb-2">AMIGOS</h3>
             {friendsList.length === 0 && (
-              <p className="text-pixel-muted text-sm font-mono">No friends yet.</p>
+              <p className="text-pixel-muted text-sm font-mono">Sin amigos aún.</p>
             )}
             <div className="space-y-2">
               {friendsList.map(f => (
@@ -283,7 +283,7 @@ export default function AmigosPage() {
                     onClick={() => handleRemove(f.friendship_id)}
                     className="text-xs font-mono text-pixel-muted hover:text-pixel-red transition-colors"
                   >
-                    [REMOVE]
+                    [ELIMINAR]
                   </button>
                 </PixelCard>
               ))}

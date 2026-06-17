@@ -11,8 +11,8 @@ import { ProgressBar } from '@/components/ProgressBar'
 
 const TABS = [
   { value: 'in_progress', label: 'EN PROGRESO' },
-  { value: 'beaten', label: 'BEATEN' },
-  { value: 'mastered', label: 'MASTERY' },
+  { value: 'beaten', label: 'COMPLETADOS' },
+  { value: 'mastered', label: 'MAESTRÍA' },
   { value: 'all', label: 'TODOS' },
 ] as const
 type TabValue = typeof TABS[number]['value']
@@ -77,7 +77,7 @@ export default function JuegosPage() {
       {!loading && filtered.length === 0 && (
         <PixelCard>
           <p className="text-pixel-muted font-mono text-sm text-center py-8">
-            {search ? 'No games match your search.' : 'No games in this category yet.'}
+            {search ? 'Ningún juego coincide con la búsqueda.' : 'Sin juegos en esta categoría.'}
           </p>
         </PixelCard>
       )}
@@ -105,10 +105,10 @@ export default function JuegosPage() {
                   <div className="flex items-center gap-2 mt-1">
                     <PlatformBadge platform={game.platform as 'steam' | 'retroachievements'} />
                     {game.is_mastered && (
-                      <span className="text-xs text-pixel-cyan border border-pixel-cyan px-1">★ MASTERY</span>
+                      <span className="text-xs text-pixel-cyan border border-pixel-cyan px-1">★ MAESTRÍA</span>
                     )}
                     {game.is_beaten && !game.is_mastered && (
-                      <span className="text-xs text-pixel-red border border-pixel-red px-1">✓ BEATEN</span>
+                      <span className="text-xs text-pixel-red border border-pixel-red px-1">✓ COMPLETADO</span>
                     )}
                   </div>
                 </div>

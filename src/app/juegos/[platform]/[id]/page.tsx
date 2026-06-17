@@ -91,7 +91,7 @@ export default function GameAchievementsPage() {
     return (
       <PixelCard>
         <div className="text-center py-8 space-y-3">
-          <p className="text-pixel-muted font-mono text-sm">Game not found.</p>
+          <p className="text-pixel-muted font-mono text-sm">Juego no encontrado.</p>
           <Link href="/juegos" className="text-pixel-cyan font-mono text-xs hover:underline">
             ← VOLVER A JUEGOS
           </Link>
@@ -137,7 +137,7 @@ export default function GameAchievementsPage() {
       {/* Achievement list */}
       <PixelCard>
         {data.items.length === 0 ? (
-          <p className="text-pixel-muted font-mono text-sm text-center py-8">No achievements found.</p>
+          <p className="text-pixel-muted font-mono text-sm text-center py-8">Sin logros encontrados.</p>
         ) : (
           data.items.map(ach => (
             <AchievementRow key={ach.achievement_id} ach={ach} />

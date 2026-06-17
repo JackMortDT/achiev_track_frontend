@@ -25,7 +25,7 @@ export default function HomePage() {
       .then(setData)
       .catch(err => {
         if (err instanceof ApiError && err.status === 401) router.push('/login')
-        else setError('Failed to load home data')
+        else setError('Error al cargar la página de inicio')
       })
 
     syncApi.status().then(setSyncStatus).catch(() => {})
