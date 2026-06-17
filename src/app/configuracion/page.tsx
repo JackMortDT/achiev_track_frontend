@@ -1,17 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
 import {
-  me as meApi, platforms as platformsApi, steamSSO,
+  me as meApi,
   UserWithConnections, PlatformConnection, ApiError
 } from '@/lib/api'
 import { PixelCard } from '@/components/PixelCard'
+import { PlatformConnect } from '@/components/PlatformConnect'
 
 const AVATARS = ['🕹️', '👾', '🎮', '🏆', '⭐', '💾', '🔥', '⚔️', '🛡️', '💀', '🌌', '🤖', '🦊', '🐉', '🎯', '🪄']
 
-export default function ConfiguracionPage() {
+function ConfiguracionPageInner() {
   const { token, loading: authLoading, logout } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -95,18 +96,8 @@ export default function ConfiguracionPage() {
     }
   }
 
-  async function handleLinkSteam() {
-    try {
-      const { steam_url } = await steamSSO.getInitiateUrl()
-      window.location.href = steam_url
-    } catch {
-      setSteamNotice('✗ No se pudo iniciar la vinculación con Steam.')
-    }
-  }
-
-  async function handleDisconnect(platform: 'steam' | 'retroachievements') {
-    await platformsApi.disconnect(platform)
-    setPlatforms(prev => prev.filter(p => p.platform !== platform))
+  function refreshPlatforms() {
+    meApi.get().then(data => setPlatforms(data.platform_connections ?? []))
   }
 
   async function handleDeleteAccount() {
@@ -254,16 +245,8 @@ export default function ConfiguracionPage() {
               <p className="text-pixel-text text-xs">Steam</p>
               {steamConnection
                 ? <p className="text-pixel-muted text-xs mt-0.5">ID: {steamConnection.external_id}</p>
-                : <p className="text-pixel-muted text-xs mt-0.5">No vinculado</p>}
+                : <p className="text-pixel-muted text-xs mt-0.5">Gestiona la conexión en la sección de plataformas.</p>}
             </div>
-            {!steamConnection && (
-              <button
-                onClick={handleLinkSteam}
-                className="border-2 border-pixel-cyan text-pixel-cyan font-mono text-xs px-3 py-1"
-              >
-                ▶ VINCULAR CON STEAM
-              </button>
-            )}
           </div>
         </div>
         <p className="text-pixel-muted text-xs mt-3">
@@ -272,33 +255,7 @@ export default function ConfiguracionPage() {
         </p>
       </PixelCard>
 
-      {/* Plataformas para sync */}
-      <PixelCard>
-        <p className="text-pixel-muted text-xs uppercase tracking-widest mb-4">Plataformas para sync</p>
-        {platforms.length === 0 && (
-          <p className="text-pixel-muted text-xs">Sin plataformas conectadas.</p>
-        )}
-        <div className="divide-y divide-pixel-border">
-          {platforms.map(p => (
-            <div key={p.platform} className="flex items-center gap-3 py-3">
-              <span className="text-base">{p.platform === 'steam' ? '🎮' : '🕹️'}</span>
-              <div className="flex-1">
-                <p className="text-pixel-text text-xs">
-                  {p.platform === 'retroachievements' ? 'RetroAchievements' : 'Steam'}{' '}
-                  <span className="border border-pixel-cyan text-pixel-cyan text-xs px-1">✓</span>
-                </p>
-                <p className="text-pixel-muted text-xs mt-0.5">ID: {p.external_id}</p>
-              </div>
-              <button
-                onClick={() => handleDisconnect(p.platform as 'steam' | 'retroachievements')}
-                className="text-pixel-muted text-xs border border-pixel-border px-3 py-1 font-mono hover:border-pixel-red hover:text-pixel-red"
-              >
-                DESCONECTAR
-              </button>
-            </div>
-          ))}
-        </div>
-      </PixelCard>
+      <PlatformConnect connections={platforms} onUpdate={refreshPlatforms} />
 
       {/* Seguridad */}
       <PixelCard>
@@ -376,5 +333,13 @@ export default function ConfiguracionPage() {
         </div>
       </PixelCard>
     </div>
+  )
+}
+
+export default function ConfiguracionPage() {
+  return (
+    <Suspense fallback={<div className="text-pixel-muted font-mono p-8">LOADING...</div>}>
+      <ConfiguracionPageInner />
+    </Suspense>
   )
 }
