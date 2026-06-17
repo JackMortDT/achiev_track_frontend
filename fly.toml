@@ -1,6 +1,6 @@
 # fly.toml — AchievTrack Next.js Frontend
 app = "achievtrack-frontend"
-primary_region = "mad"
+primary_region = "lax"
 
 [build]
 
