@@ -61,14 +61,44 @@ export interface SyncStatus {
   next_available_at: string | null
 }
 
+export interface ShowcaseGame {
+  id: string
+  title: string
+  image_url: string | null
+  platform: string
+  unlocked_count: number
+  total_achievements: number
+  playtime_forever: number
+  position?: number
+}
+
+export interface ShowcaseAchievement {
+  id: string
+  name: string
+  description: string | null
+  image_url: string | null
+  game_title: string
+  unlocked_at: string
+  points: number
+  position: number
+}
+
+export interface ProfileCustomization {
+  favorite_game: ShowcaseGame | null
+  game_showcase: ShowcaseGame[]
+  achievement_showcase: ShowcaseAchievement[]
+}
+
 export interface Profile {
   user: User
   stats: ProfileStats
   platforms: PlatformConnection[]
   sync_status: SyncStatus
+  customization: ProfileCustomization
 }
 
 export interface Achievement {
+  user_achievement_id?: string
   unlocked_at: string
   achievement_id: string
   title: string
@@ -89,6 +119,7 @@ export interface AchievementsPage {
 
 export interface Game {
   user_game_id: string
+  game_id: string
   title: string
   platform: string
   external_id: string
@@ -170,6 +201,28 @@ export const auth = {
 
 export const profile = {
   get: () => apiFetch<Profile>('/api/profile'),
+}
+
+// ── Profile Customization ─────────────────────────────────────────────────────
+
+export const profileCustomization = {
+  setFavoriteGame: (game_id: string | null) =>
+    apiFetch<{ ok: boolean }>('/api/me/favorite-game', {
+      method: 'PATCH',
+      body: JSON.stringify({ game_id }),
+    }),
+
+  setGameShowcase: (game_ids: string[]) =>
+    apiFetch<{ ok: boolean }>('/api/me/showcase/games', {
+      method: 'PUT',
+      body: JSON.stringify({ game_ids }),
+    }),
+
+  setAchievementShowcase: (user_achievement_ids: string[]) =>
+    apiFetch<{ ok: boolean }>('/api/me/showcase/achievements', {
+      method: 'PUT',
+      body: JSON.stringify({ user_achievement_ids }),
+    }),
 }
 
 // ── Sync ─────────────────────────────────────────────────────────────────────
