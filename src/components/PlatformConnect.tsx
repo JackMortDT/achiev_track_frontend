@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
-import Link from 'next/link'
 import { platforms as platformsApi, steamSSO, PlatformConnection, ApiError } from '@/lib/api'
 import { PixelCard } from '@/components/PixelCard'
 import { PlatformBadge } from '@/components/PlatformBadge'
@@ -199,7 +198,6 @@ export function PlatformConnect({ connections, onUpdate }: PlatformConnectProps)
 
       <p className="text-pixel-muted text-xs mt-4">
         Steam se vincula mediante SSO — serás redirigido a Steam para autorizar.
-        También puedes gestionarlo desde <Link href="/configuracion" className="text-pixel-cyan hover:underline">Configuración</Link>.
       </p>
     </PixelCard>
   )
