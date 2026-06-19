@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-pixel-bg min-h-screen">
         <AuthProvider>
           <Nav />
-          <main className="container mx-auto px-4 py-6 max-w-5xl">
+          <main className="container mx-auto px-4 py-6 max-w-5xl pb-24 md:pb-6">
             {children}
           </main>
         </AuthProvider>
