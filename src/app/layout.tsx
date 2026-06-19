@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { AuthProvider } from '@/lib/auth'
 import { Nav } from '@/components/Nav'
@@ -6,6 +6,19 @@ import { Nav } from '@/components/Nav'
 export const metadata: Metadata = {
   title: 'RetroPlatform',
   description: 'Track achievements across Steam and RetroAchievements',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    title: 'RETRO',
+    statusBarStyle: 'black-translucent',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#e94560',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

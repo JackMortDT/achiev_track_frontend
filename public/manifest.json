@@ -1,0 +1,16 @@
+{
+  "name": "RetroPlatform",
+  "short_name": "RETRO",
+  "description": "Track achievements across Steam and RetroAchievements",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#e94560",
+  "icons": [
+    {
+      "src": "/icon",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
