@@ -21,14 +21,14 @@ type PickerState =
   | { mode: 'achievement-showcase'; current: string[] }
 
 export default function PerfilPage() {
-  const { token, loading: authLoading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [data, setData] = useState<Profile | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [picker, setPicker] = useState<PickerState>({ mode: 'closed' })
   const [gamesList, setGamesList] = useState<Game[]>([])
   const [achievementsList, setAchievementsList] = useState<Achievement[]>([])
-  const sseMessages = useSSE(token)
+  const sseMessages = useSSE(!!user)
 
   function loadProfile() {
     profileApi.get()
@@ -40,13 +40,13 @@ export default function PerfilPage() {
   }
 
   useEffect(() => {
-    if (!authLoading && !token) { router.push('/login'); return }
-    if (!token) return
+    if (!authLoading && !user) { router.push('/login'); return }
+    if (!user) return
     loadProfile()
     games.list().then(setGamesList)
     achievements.list({ per_page: 200, sort: 'points' }).then(r => setAchievementsList(r.items))
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, authLoading])
+  }, [user, authLoading])
 
   async function handleSetFavoriteGame(ids: string[]) {
     await profileCustomization.setFavoriteGame(ids[0] ?? null)
@@ -69,7 +69,7 @@ export default function PerfilPage() {
   if (error) return <div className="text-pixel-red font-mono p-8">{error}</div>
   if (authLoading || !data) return <div className="text-pixel-muted font-mono p-8">LOADING...</div>
 
-  const { user, stats, platforms, sync_status, customization } = data
+  const { user: profileUser, stats, platforms, sync_status, customization } = data
 
   return (
     <div className="space-y-6">
@@ -78,11 +78,11 @@ export default function PerfilPage() {
       {/* Header */}
       <PixelCard className="flex items-center gap-6">
         <div className="w-16 h-16 bg-pixel-border flex items-center justify-center text-pixel-cyan text-2xl">
-          {user.avatar_url || '●'}
+          {profileUser.avatar_url || '●'}
         </div>
         <div>
-          <h1 className="text-pixel-cyan text-xl font-mono">{user.username}</h1>
-          <p className="text-pixel-muted text-xs">Miembro desde {new Date(user.inserted_at).getFullYear()}</p>
+          <h1 className="text-pixel-cyan text-xl font-mono">{profileUser.username}</h1>
+          <p className="text-pixel-muted text-xs">Miembro desde {new Date(profileUser.inserted_at).getFullYear()}</p>
           <div className="flex gap-2 mt-2">
             {platforms.map(p => (
               <PlatformBadge key={p.platform} platform={p.platform} />

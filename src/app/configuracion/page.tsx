@@ -13,7 +13,7 @@ import { PlatformConnect } from '@/components/PlatformConnect'
 const AVATARS = ['🕹️', '👾', '🎮', '🏆', '⭐', '💾', '🔥', '⚔️', '🛡️', '💀', '🌌', '🤖', '🦊', '🐉', '🎯', '🪄']
 
 function ConfiguracionPageInner() {
-  const { token, loading: authLoading, logout } = useAuth()
+  const { user, loading: authLoading, logout } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -28,6 +28,8 @@ function ConfiguracionPageInner() {
   const [infoSaving, setInfoSaving] = useState(false)
   const [infoError, setInfoError] = useState<string | null>(null)
 
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
   const [currentPw, setCurrentPw] = useState('')
   const [newPw, setNewPw] = useState('')
   const [confirmPw, setConfirmPw] = useState('')
@@ -36,8 +38,8 @@ function ConfiguracionPageInner() {
   const [pwSuccess, setPwSuccess] = useState(false)
 
   useEffect(() => {
-    if (!authLoading && !token) { router.push('/login'); return }
-    if (!token) return
+    if (!authLoading && !user) { router.push('/login'); return }
+    if (!user) return
 
     const steamParam = searchParams.get('steam')
     if (steamParam === 'connected') setSteamNotice('✓ Steam vinculado correctamente')
@@ -52,7 +54,7 @@ function ConfiguracionPageInner() {
       })
       .catch(() => router.push('/login'))
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, authLoading])
+  }, [user, authLoading])
 
   const steamConnection = platforms.find(p => p.platform === 'steam')
 
@@ -101,9 +103,8 @@ function ConfiguracionPageInner() {
   }
 
   async function handleDeleteAccount() {
-    if (!confirm('¿Seguro que quieres eliminar tu cuenta? Esta acción es irreversible.')) return
     await meApi.delete()
-    logout()
+    await logout()
     router.push('/register')
   }
 
@@ -324,12 +325,34 @@ function ConfiguracionPageInner() {
             <p className="text-pixel-text text-xs mb-1">Eliminar cuenta</p>
             <p className="text-pixel-muted text-xs">Borra permanentemente tu cuenta y todos tus datos.</p>
           </div>
-          <button
-            onClick={handleDeleteAccount}
-            className="border-2 border-pixel-red text-pixel-red font-mono text-xs px-3 py-1 hover:bg-pixel-red hover:text-white transition-colors"
-          >
-            ELIMINAR
-          </button>
+          {!confirmDelete ? (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="border-2 border-pixel-red text-pixel-red font-mono text-xs px-3 py-1 hover:bg-pixel-red hover:text-white transition-colors"
+            >
+              Eliminar cuenta
+            </button>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <p className="text-pixel-red text-sm font-mono">¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    await handleDeleteAccount()
+                  }}
+                  className="border-2 border-pixel-red text-pixel-red font-mono text-xs px-3 py-1 hover:bg-pixel-red hover:text-white transition-colors"
+                >
+                  Confirmar eliminación
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="text-pixel-muted text-xs border border-pixel-border px-3 py-1 font-mono hover:border-pixel-cyan hover:text-pixel-cyan transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </PixelCard>
     </div>

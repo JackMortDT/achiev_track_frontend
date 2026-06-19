@@ -7,18 +7,12 @@ export class ApiError extends Error {
   }
 }
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem('auth_token')
-}
-
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken()
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: 'include',
     headers: {
       ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   })
@@ -185,16 +179,19 @@ export interface CompareData {
 
 export const auth = {
   register: (username: string, email: string, password: string) =>
-    apiFetch<{ token: string; user: User }>('/api/register', {
+    apiFetch<{ user: User }>('/api/register', {
       method: 'POST',
       body: JSON.stringify({ username, email, password }),
     }),
 
   login: (email: string, password: string) =>
-    apiFetch<{ token: string; user: User }>('/api/login', {
+    apiFetch<{ user: User }>('/api/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
+
+  logout: () =>
+    apiFetch<void>('/api/logout', { method: 'DELETE' }),
 }
 
 // ── Profile ──────────────────────────────────────────────────────────────────

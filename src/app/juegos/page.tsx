@@ -18,7 +18,7 @@ const TABS = [
 type TabValue = typeof TABS[number]['value']
 
 export default function JuegosPage() {
-  const { token, loading: authLoading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [items, setItems] = useState<Game[]>([])
   const [tab, setTab] = useState<TabValue>('in_progress')
@@ -26,8 +26,8 @@ export default function JuegosPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!authLoading && !token) { router.push('/login'); return }
-    if (!token) return
+    if (!authLoading && !user) { router.push('/login'); return }
+    if (!user) return
 
     gamesApi
       .list(tab === 'all' ? undefined : tab)
@@ -36,7 +36,7 @@ export default function JuegosPage() {
         if (err instanceof ApiError && err.status === 401) router.push('/login')
         else setLoading(false)
       })
-  }, [token, authLoading, tab, router])
+  }, [user, authLoading, tab, router])
 
   const filtered = search.trim()
     ? items.filter(g => g.title.toLowerCase().includes(search.trim().toLowerCase()))

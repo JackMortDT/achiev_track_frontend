@@ -11,15 +11,15 @@ import { ProgressBar } from '@/components/ProgressBar'
 import { SyncButton } from '@/components/SyncButton'
 
 export default function HomePage() {
-  const { token, user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [data, setData] = useState<HomeData | null>(null)
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!authLoading && !token) { router.push('/login'); return }
-    if (!token) return
+    if (!authLoading && !user) { router.push('/login'); return }
+    if (!user) return
 
     homeApi.get()
       .then(setData)
@@ -30,7 +30,7 @@ export default function HomePage() {
 
     syncApi.status().then(setSyncStatus).catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, authLoading])
+  }, [user, authLoading])
 
   if (error) return <div className="text-pixel-red font-mono p-8">{error}</div>
   if (authLoading || !data) return <div className="text-pixel-muted font-mono p-8">LOADING...</div>

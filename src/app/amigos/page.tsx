@@ -13,7 +13,7 @@ import { ProgressBar } from '@/components/ProgressBar'
 type TabType = 'leaderboard' | 'compare' | 'manage'
 
 export default function AmigosPage() {
-  const { token, loading: authLoading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [tab, setTab] = useState<TabType>('leaderboard')
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
@@ -26,8 +26,8 @@ export default function AmigosPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!authLoading && !token) { router.push('/login'); return }
-    if (!token) return
+    if (!authLoading && !user) { router.push('/login'); return }
+    if (!user) return
 
     Promise.all([
       friendsApi.leaderboard(),
@@ -43,7 +43,7 @@ export default function AmigosPage() {
         if (err instanceof ApiError && err.status === 401) router.push('/login')
       })
       .finally(() => setLoading(false))
-  }, [token, authLoading, router])
+  }, [user, authLoading, router])
 
   async function handleCompare(userId: string) {
     setCompareData(null)

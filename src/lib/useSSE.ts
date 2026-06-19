@@ -5,11 +5,11 @@ export interface SSEMessage {
   count?: number
 }
 
-export function useSSE(token: string | null) {
+export function useSSE(enabled: boolean) {
   const [messages, setMessages] = useState<SSEMessage[]>([])
 
   useEffect(() => {
-    if (!token) return
+    if (!enabled) return
 
     const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
     const controller = new AbortController()
@@ -17,7 +17,7 @@ export function useSSE(token: string | null) {
     async function connect() {
       try {
         const res = await fetch(`${apiBase}/api/events`, {
-          headers: { Authorization: `Bearer ${token}` },
+          credentials: 'include',
           signal: controller.signal,
         })
 
@@ -53,7 +53,7 @@ export function useSSE(token: string | null) {
 
     connect()
     return () => controller.abort()
-  }, [token])
+  }, [enabled])
 
   return messages
 }

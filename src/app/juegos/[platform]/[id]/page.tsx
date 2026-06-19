@@ -60,7 +60,7 @@ function AchievementRow({ ach }: { ach: GameAchievement }) {
 }
 
 export default function GameAchievementsPage() {
-  const { token, loading: authLoading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const params = useParams<{ platform: string; id: string }>()
   const [data, setData] = useState<GameAchievementsResponse | null>(null)
@@ -68,8 +68,8 @@ export default function GameAchievementsPage() {
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    if (!authLoading && !token) { router.push('/login'); return }
-    if (!token || !params) return
+    if (!authLoading && !user) { router.push('/login'); return }
+    if (!user || !params) return
 
     gamesApi
       .gameAchievements(params.platform, params.id)
@@ -79,7 +79,7 @@ export default function GameAchievementsPage() {
         else if (err instanceof ApiError && err.status === 404) setNotFound(true)
       })
       .finally(() => setLoading(false))
-  }, [token, authLoading, params, router])
+  }, [user, authLoading, params, router])
 
   const unlockedCount = data ? data.items.filter(a => a.unlocked).length : 0
 
