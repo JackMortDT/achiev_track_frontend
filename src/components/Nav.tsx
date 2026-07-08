@@ -2,7 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth'
+import { sync, SyncStatus } from '@/lib/api'
+import { SyncButton } from '@/components/SyncButton'
 
 const NAV_ITEMS = [
   { href: '/', label: 'INICIO', icon: '🏠', exact: true },
@@ -15,6 +18,15 @@ export function Nav() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, loading, logout } = useAuth()
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null)
+
+  useEffect(() => {
+    if (user) {
+      sync.status().then(setSyncStatus).catch(() => {})
+    } else {
+      setSyncStatus(null)
+    }
+  }, [user])
 
   if (loading) return null
 
@@ -25,7 +37,7 @@ export function Nav() {
 
   return (
     <>
-      {/* Desktop top nav — hidden on mobile */}
+      {/* Desktop top nav */}
       <nav className="hidden md:flex bg-pixel-surface border-b-2 border-pixel-border px-4 py-3 items-center gap-6">
         <span className="text-pixel-red font-mono text-lg font-bold mr-4">▶ RETRO</span>
 
@@ -49,6 +61,7 @@ export function Nav() {
         <div className="flex items-center gap-4">
           {user && (
             <>
+              {syncStatus && <SyncButton initialStatus={syncStatus} variant="compact" />}
               <Link
                 href="/configuracion"
                 className="flex items-center gap-2 hover:text-pixel-cyan transition-colors"
@@ -67,7 +80,7 @@ export function Nav() {
         </div>
       </nav>
 
-      {/* Mobile bottom tab bar — hidden on desktop */}
+      {/* Mobile bottom tab bar */}
       {user && (
         <nav className="fixed bottom-0 inset-x-0 z-50 flex md:hidden bg-pixel-surface border-t-2 border-pixel-border pb-[env(safe-area-inset-bottom)]">
           {NAV_ITEMS.map(item => {

@@ -4,17 +4,15 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
-import { home as homeApi, HomeData, ApiError, sync as syncApi, SyncStatus } from '@/lib/api'
+import { home as homeApi, HomeData, ApiError } from '@/lib/api'
 import { PixelCard } from '@/components/PixelCard'
 import { PlatformBadge } from '@/components/PlatformBadge'
 import { ProgressBar } from '@/components/ProgressBar'
-import { SyncButton } from '@/components/SyncButton'
 
 export default function HomePage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [data, setData] = useState<HomeData | null>(null)
-  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -27,8 +25,6 @@ export default function HomePage() {
         if (err instanceof ApiError && err.status === 401) router.push('/login')
         else setError('Error al cargar la página de inicio')
       })
-
-    syncApi.status().then(setSyncStatus).catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading])
 
@@ -40,7 +36,7 @@ export default function HomePage() {
   return (
     <div className="space-y-6">
       {/* Hero */}
-      <PixelCard className="flex items-center justify-between">
+      <PixelCard>
         <div>
           <p className="text-pixel-muted text-xs uppercase tracking-widest mb-1">Bienvenido de vuelta</p>
           <h1 className="text-pixel-cyan text-xl font-mono mb-4">{user?.username?.toUpperCase()}</h1>
@@ -58,7 +54,6 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-        {syncStatus && <SyncButton initialStatus={syncStatus} />}
       </PixelCard>
 
       {/* Últimos logros */}
