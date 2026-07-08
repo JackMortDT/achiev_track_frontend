@@ -8,35 +8,46 @@ import { games as gamesApi, Game, ApiError } from '@/lib/api'
 import { PixelCard } from '@/components/PixelCard'
 import { PlatformBadge } from '@/components/PlatformBadge'
 import { ProgressBar } from '@/components/ProgressBar'
+import { PlatformTabs } from '@/components/PlatformTabs'
 
-const TABS = [
+const STATUS_TABS = [
   { value: 'in_progress', label: 'EN PROGRESO' },
   { value: 'beaten', label: 'COMPLETADOS' },
   { value: 'mastered', label: 'MAESTRÍA' },
   { value: 'all', label: 'TODOS' },
 ] as const
-type TabValue = typeof TABS[number]['value']
+type StatusTab = typeof STATUS_TABS[number]['value']
 
 export default function JuegosPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [items, setItems] = useState<Game[]>([])
-  const [tab, setTab] = useState<TabValue>('in_progress')
+  const [status, setStatus] = useState<StatusTab>('in_progress')
+  const [platform, setPlatform] = useState('all')
+  const [availablePlatforms, setAvailablePlatforms] = useState<string[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!authLoading && !user) { router.push('/login'); return }
     if (!user) return
+    gamesApi.platforms().then(r => setAvailablePlatforms(r.platforms)).catch(err => {
+      if (err instanceof ApiError && err.status === 401) router.push('/login')
+      // else: platform tabs will not appear — non-blocking
+    })
+  }, [user, authLoading, router])
 
+  useEffect(() => {
+    if (!user) return
+    setLoading(true)
     gamesApi
-      .list(tab === 'all' ? undefined : tab)
+      .list(status === 'all' ? undefined : status, platform)
       .then(data => { setItems(data); setLoading(false) })
       .catch(err => {
         if (err instanceof ApiError && err.status === 401) router.push('/login')
         else setLoading(false)
       })
-  }, [user, authLoading, tab, router])
+  }, [user, status, platform, router])
 
   const filtered = search.trim()
     ? items.filter(g => g.title.toLowerCase().includes(search.trim().toLowerCase()))
@@ -46,7 +57,6 @@ export default function JuegosPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-pixel-cyan text-xl font-mono">JUEGOS</h1>
-
         <input
           type="text"
           value={search}
@@ -54,14 +64,16 @@ export default function JuegosPage() {
           placeholder="BUSCAR JUEGO..."
           className="bg-pixel-surface border border-pixel-border text-pixel-text font-mono text-xs px-3 py-1 focus:border-pixel-cyan focus:outline-none w-48"
         />
+      </div>
 
-        <div className="flex gap-2">
-          {TABS.map(t => (
+      <div className="space-y-2">
+        <div className="flex gap-2 flex-wrap">
+          {STATUS_TABS.map(t => (
             <button
               key={t.value}
-              onClick={() => { setTab(t.value); setLoading(true) }}
+              onClick={() => { setStatus(t.value); setLoading(true) }}
               className={`px-3 py-1 text-xs font-mono border transition-colors ${
-                tab === t.value
+                status === t.value
                   ? 'border-pixel-cyan text-pixel-cyan bg-pixel-surface'
                   : 'border-pixel-border text-pixel-muted hover:border-pixel-cyan'
               }`}
@@ -70,6 +82,13 @@ export default function JuegosPage() {
             </button>
           ))}
         </div>
+        {availablePlatforms.length > 0 && (
+          <PlatformTabs
+            platforms={availablePlatforms}
+            selected={platform}
+            onChange={p => { setPlatform(p); setLoading(true) }}
+          />
+        )}
       </div>
 
       {loading && <p className="text-pixel-muted font-mono">LOADING...</p>}
@@ -103,7 +122,7 @@ export default function JuegosPage() {
                     <span className="text-pixel-cyan text-xs font-mono flex-shrink-0">→</span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <PlatformBadge platform={game.platform as 'steam' | 'retroachievements'} />
+                    <PlatformBadge platform={game.platform} />
                     {game.is_mastered && (
                       <span className="text-xs text-pixel-cyan border border-pixel-cyan px-1">★ MAESTRÍA</span>
                     )}

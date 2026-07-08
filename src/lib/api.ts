@@ -247,10 +247,14 @@ export const achievements = {
 // ── Games ────────────────────────────────────────────────────────────────────
 
 export const games = {
-  list: (status?: string) => {
-    const qs = status ? `?status=${status}` : ''
+  list: (status?: string, platform?: string) => {
+    const params = new URLSearchParams()
+    if (status) params.set('status', status)
+    if (platform && platform !== 'all') params.set('platform', platform)
+    const qs = params.toString() ? `?${params}` : ''
     return apiFetch<Game[]>(`/api/games${qs}`)
   },
+  platforms: () => apiFetch<{ platforms: string[] }>('/api/games/platforms'),
   gameAchievements: (platform: string, externalId: string) =>
     apiFetch<GameAchievementsResponse>(`/api/games/${platform}/${externalId}/achievements`),
 }
