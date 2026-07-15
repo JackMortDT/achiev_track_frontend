@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react'
 import { platforms as platformsApi, steamSSO, PlatformConnection, ApiError } from '@/lib/api'
 import { PixelCard } from '@/components/PixelCard'
 import { PlatformBadge } from '@/components/PlatformBadge'
+import { useAuth } from '@/lib/auth'
 
 interface PlatformConnectProps {
   connections: PlatformConnection[]
@@ -20,6 +21,8 @@ const RA_CONFIG = {
 }
 
 export function PlatformConnect({ connections, onUpdate }: PlatformConnectProps) {
+  const { user } = useAuth()
+  const emailUnverified = user?.email_verified === false
   const [showRAForm, setShowRAForm] = useState(false)
   const [externalId, setExternalId] = useState('')
   const [apiKey, setApiKey] = useState('')
@@ -78,6 +81,12 @@ export function PlatformConnect({ connections, onUpdate }: PlatformConnectProps)
     <PixelCard>
       <h2 className="text-pixel-text text-sm font-mono mb-4">PLATAFORMAS</h2>
 
+      {emailUnverified && (
+        <div className="p-3 border border-pixel-red text-pixel-red text-xs font-mono mb-4">
+          Debes verificar tu email para conectar plataformas.
+        </div>
+      )}
+
       {error && (
         <div role="alert" className="p-2 border border-pixel-red text-pixel-red text-xs font-mono mb-3">
           {error}
@@ -104,7 +113,7 @@ export function PlatformConnect({ connections, onUpdate }: PlatformConnectProps)
               <span className="text-pixel-muted text-xs font-mono flex-1">No conectado</span>
               <button
                 onClick={handleLinkSteam}
-                disabled={steamLoading}
+                disabled={steamLoading || emailUnverified}
                 className="text-xs font-mono text-pixel-muted hover:text-pixel-cyan border border-pixel-border hover:border-pixel-cyan px-2 py-0.5 transition-colors disabled:opacity-50"
               >
                 {steamLoading ? 'REDIRIGIENDO...' : '[CONECTAR]'}
@@ -131,8 +140,9 @@ export function PlatformConnect({ connections, onUpdate }: PlatformConnectProps)
             <>
               <span className="text-pixel-muted text-xs font-mono flex-1">No conectado</span>
               <button
-                onClick={() => { setShowRAForm(true); setError(null) }}
-                className="text-xs font-mono text-pixel-muted hover:text-pixel-cyan border border-pixel-border hover:border-pixel-cyan px-2 py-0.5 transition-colors"
+                onClick={() => { if (!emailUnverified) { setShowRAForm(true); setError(null) } }}
+                disabled={emailUnverified}
+                className="text-xs font-mono text-pixel-muted hover:text-pixel-cyan border border-pixel-border hover:border-pixel-cyan px-2 py-0.5 transition-colors disabled:opacity-50"
               >
                 [CONECTAR]
               </button>

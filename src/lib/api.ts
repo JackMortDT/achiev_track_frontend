@@ -33,6 +33,7 @@ export interface User {
   username: string
   email: string
   avatar_url: string | null
+  email_verified: boolean
   inserted_at: string
 }
 
@@ -102,6 +103,20 @@ export interface Achievement {
   game_title: string
   platform: string
   game_external_id: string
+  rarity_pct?: number | null
+  is_mastery?: boolean
+}
+
+export interface LockedAchievement {
+  achievement_id: string
+  title: string
+  description: string | null
+  points: number
+  image_url: string | null
+  game_title: string
+  platform: string
+  game_external_id: string
+  rarity_pct: number | null
 }
 
 export interface AchievementsPage {
@@ -133,6 +148,7 @@ export interface GameAchievement {
   image_url: string | null
   unlocked: boolean
   unlocked_at: string | null
+  rarity_pct: number | null
 }
 
 export interface GameAchievementsResponse {
@@ -142,6 +158,8 @@ export interface GameAchievementsResponse {
     external_id: string
     image_url: string | null
     total_achievements: number
+    playtime_forever: number
+    is_mastered: boolean
   }
   items: GameAchievement[]
 }
@@ -192,6 +210,12 @@ export const auth = {
 
   logout: () =>
     apiFetch<void>('/api/logout', { method: 'DELETE' }),
+
+  verifyEmail: (token: string) =>
+    apiFetch<{ verified: boolean }>(`/api/verify-email/${token}`),
+
+  resendVerification: () =>
+    apiFetch<{ ok: boolean }>('/api/resend-verification', { method: 'POST' }),
 }
 
 // ── Profile ──────────────────────────────────────────────────────────────────
@@ -241,6 +265,13 @@ export const achievements = {
       )
     ).toString() : ''
     return apiFetch<AchievementsPage>(`/api/achievements${qs}`)
+  },
+
+  locked: (params?: { platform?: string }) => {
+    const qs = params?.platform && params.platform !== 'all'
+      ? `?platform=${params.platform}`
+      : ''
+    return apiFetch<{ items: LockedAchievement[] }>(`/api/achievements/locked${qs}`)
   },
 }
 
@@ -304,11 +335,40 @@ export interface PopularGame {
   player_count: number
 }
 
+export interface FriendActivity {
+  user_id: string
+  username: string
+  avatar_url: string | null
+  achievement_id: string
+  title: string
+  description: string | null
+  points: number
+  image_url: string | null
+  game_title: string
+  platform: string
+  game_external_id: string
+  unlocked_at: string
+}
+
+export interface TrendingAchievement {
+  achievement_id: string
+  title: string
+  description: string | null
+  points: number
+  image_url: string | null
+  game_title: string
+  platform: string
+  game_external_id: string
+  unlock_count: number
+}
+
 export interface HomeData {
   stats: HomeStats
   recent_achievements: Achievement[]
   active_games: Game[]
   popular_games: PopularGame[]
+  friends_activity: FriendActivity[]
+  trending_achievements: TrendingAchievement[]
 }
 
 export const home = {

@@ -31,7 +31,7 @@ export default function HomePage() {
   if (error) return <div className="text-pixel-red font-mono p-8">{error}</div>
   if (authLoading || !data) return <div className="text-pixel-muted font-mono p-8">LOADING...</div>
 
-  const { stats, recent_achievements, active_games, popular_games } = data
+  const { stats, recent_achievements, active_games, popular_games, friends_activity, trending_achievements } = data
 
   return (
     <div className="space-y-6">
@@ -55,6 +55,46 @@ export default function HomePage() {
           </div>
         </div>
       </PixelCard>
+
+      {/* Logros de amigos */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-pixel-cyan text-xs uppercase tracking-widest border-l-2 border-pixel-red pl-3">
+            Logros de amigos
+          </h2>
+          <Link href="/amigos" className="text-pixel-muted text-xs hover:text-pixel-cyan">ver amigos →</Link>
+        </div>
+        {friends_activity.length === 0 ? (
+          <PixelCard>
+            <p className="text-pixel-muted text-xs">
+              Sin actividad reciente. <Link href="/amigos" className="text-pixel-red hover:text-pixel-cyan">Agrega amigos</Link> para ver sus logros.
+            </p>
+          </PixelCard>
+        ) : (
+          <PixelCard className="divide-y divide-pixel-border p-0">
+            {friends_activity.map((a, i) => (
+              <div key={`${a.user_id}-${a.achievement_id}-${i}`} className="flex items-center gap-3 p-3">
+                <div className="w-9 h-9 bg-pixel-border flex items-center justify-center flex-shrink-0 rounded-full overflow-hidden">
+                  {a.avatar_url
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={a.avatar_url} alt={a.username} className="w-full h-full object-cover" />
+                    : <span className="text-pixel-muted text-xs">●</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-pixel-text text-xs truncate">
+                    <span className="text-pixel-cyan">{a.username}</span>{' '}
+                    desbloqueó <span className="text-pixel-text">{a.title}</span>
+                  </p>
+                  <p className="text-pixel-muted text-xs mt-0.5">
+                    {a.game_title} · {new Date(a.unlocked_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <p className="text-pixel-red text-xs flex-shrink-0">+{a.points} pts</p>
+              </div>
+            ))}
+          </PixelCard>
+        )}
+      </div>
 
       {/* Últimos logros */}
       <div>
@@ -122,6 +162,33 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Trending esta semana */}
+      {trending_achievements.length > 0 && (
+        <div>
+          <h2 className="text-pixel-cyan text-xs uppercase tracking-widest border-l-2 border-pixel-red pl-3 mb-3">
+            Trending esta semana
+          </h2>
+          <PixelCard className="divide-y divide-pixel-border p-0">
+            {trending_achievements.map((a, i) => (
+              <div key={a.achievement_id} className="flex items-center gap-3 p-3">
+                <span className="text-pixel-muted text-xs font-mono w-4 flex-shrink-0">{i + 1}</span>
+                <div className="w-9 h-9 bg-pixel-border flex items-center justify-center flex-shrink-0">
+                  {a.image_url
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={a.image_url} alt={a.title} className="w-full h-full object-cover" />
+                    : <span className="text-pixel-muted text-xs">★</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-pixel-text text-xs truncate">{a.title}</p>
+                  <p className="text-pixel-muted text-xs mt-0.5">{a.game_title}</p>
+                </div>
+                <p className="text-pixel-muted text-xs flex-shrink-0 whitespace-nowrap">{a.unlock_count} jugadores</p>
+              </div>
+            ))}
+          </PixelCard>
         </div>
       )}
 

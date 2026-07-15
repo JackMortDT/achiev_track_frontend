@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { AuthProvider } from '@/lib/auth'
 import { Nav } from '@/components/Nav'
+import { EmailVerificationBanner } from '@/components/EmailVerificationBanner'
 
 export const metadata: Metadata = {
   title: 'RetroPlatform',
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-pixel-bg min-h-screen">
         <AuthProvider>
           <Nav />
+          <EmailVerificationBanner />
           <main className="container mx-auto px-4 py-6 max-w-5xl pb-24 md:pb-6">
             {children}
           </main>

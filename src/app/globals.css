@@ -28,3 +28,18 @@ body {
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--color-pixel-bg); }
 ::-webkit-scrollbar-thumb { background: var(--color-pixel-border); }
+
+@keyframes glow-pulse {
+  from { box-shadow: 0 0 4px #b06aff30; }
+  to   { box-shadow: 0 0 14px #b06aff70; }
+}
+
+@keyframes mastery-glow {
+  from { box-shadow: 0 0 8px #b06aff, 0 0 20px #b06aff; }
+  to   { box-shadow: 0 0 16px #b06aff, 0 0 36px #b06aff; }
+}
+
+.mastery-glow {
+  animation: mastery-glow 1.5s ease-in-out infinite alternate;
+  border-color: #b06aff !important;
+}

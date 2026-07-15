@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { sync, SyncStatus, ApiError } from '@/lib/api'
+import { useAuth } from '@/lib/auth'
 
 interface SyncButtonProps {
   initialStatus: SyncStatus
@@ -9,6 +10,7 @@ interface SyncButtonProps {
 }
 
 export function SyncButton({ initialStatus, variant = 'default' }: SyncButtonProps) {
+  const { user } = useAuth()
   const [status, setStatus] = useState(initialStatus)
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState<string | null>(null)
@@ -49,7 +51,8 @@ export function SyncButton({ initialStatus, variant = 'default' }: SyncButtonPro
     }
   }
 
-  const disabled = !status.allowed || loading
+  const emailUnverified = user?.email_verified === false
+  const disabled = !status.allowed || loading || emailUnverified
 
   if (variant === 'compact') {
     return (
@@ -60,6 +63,7 @@ export function SyncButton({ initialStatus, variant = 'default' }: SyncButtonPro
         <button
           onClick={handleSync}
           disabled={disabled}
+          title={emailUnverified ? 'Verifica tu email para sincronizar' : undefined}
           className="border border-pixel-red text-pixel-red px-2 py-1 font-mono text-xs hover:bg-pixel-red hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
         >
           {loading ? '...' : '↻ SYNC'}
@@ -73,6 +77,7 @@ export function SyncButton({ initialStatus, variant = 'default' }: SyncButtonPro
       <button
         onClick={handleSync}
         disabled={disabled}
+        title={emailUnverified ? 'Verifica tu email para sincronizar' : undefined}
         className="bg-pixel-red text-white px-4 py-2 font-mono text-sm hover:bg-opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap"
       >
         {loading ? 'SYNCING...' : '[ SYNC NOW ]'}
