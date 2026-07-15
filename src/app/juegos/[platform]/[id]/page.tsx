@@ -10,6 +10,7 @@ import { ProgressBar } from '@/components/ProgressBar'
 import { PixelCard } from '@/components/PixelCard'
 import { AchievementTile } from '@/components/AchievementTile'
 import { RareStrip } from '@/components/RareStrip'
+import { MaestryTrophyCard } from '@/components/MaestryTrophyCard'
 
 export default function GameAchievementsPage() {
   const { user, loading: authLoading } = useAuth()
@@ -52,6 +53,7 @@ export default function GameAchievementsPage() {
 
   const unlockedCount = data.items.filter(a => a.unlocked).length
   const playtimeHours = Math.round(data.game.playtime_forever / 60)
+  const isMastered100 = data.game.is_mastered && unlockedCount === data.game.total_achievements
 
   return (
     <div className="space-y-6">
@@ -103,6 +105,15 @@ export default function GameAchievementsPage() {
           </div>
         </div>
       </PixelCard>
+
+      {/* Platino del jugador */}
+      {isMastered100 && (
+        <MaestryTrophyCard
+          items={data.items}
+          totalAchievements={data.game.total_achievements}
+          playtimeHours={playtimeHours}
+        />
+      )}
 
       {/* Rare trophies strip */}
       <RareStrip items={data.items} isMastered={data.game.is_mastered} />
