@@ -77,8 +77,10 @@ export default function PerfilPage() {
 
       {/* Header */}
       <PixelCard className="flex items-center gap-6">
-        <div className="w-16 h-16 bg-pixel-border flex items-center justify-center text-pixel-cyan text-2xl">
-          {profileUser.avatar_url || '●'}
+        <div className="w-16 h-16 bg-pixel-border flex items-center justify-center text-pixel-cyan text-2xl overflow-hidden">
+          {profileUser.avatar_url
+            ? <img src={profileUser.avatar_url} alt={profileUser.username} className="w-full h-full object-cover" />
+            : '●'}
         </div>
         <div>
           <h1 className="text-pixel-cyan text-xl font-mono">{profileUser.username}</h1>

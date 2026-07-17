@@ -8,7 +8,12 @@ export function EmailVerificationBanner() {
   const { user } = useAuth()
   const [sent, setSent] = useState(false)
 
-  if (!user || user.email_verified) return null
+  if (!user) return null
+
+  // If user has no email (OAuth-only), no banner needed
+  if (!user.email) return null
+
+  if (user.email_verified) return null
 
   async function handleResend() {
     try {

@@ -9,6 +9,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (username: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  loginWithSteam: () => Promise<void>
+  loginWithGoogle: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -43,8 +45,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }, [])
 
+  const loginWithSteam = useCallback(async () => {
+    const { steam_url } = await authApi.steamLogin()
+    window.location.href = steam_url
+  }, [])
+
+  const loginWithGoogle = useCallback(async () => {
+    const { google_url } = await authApi.googleLogin()
+    window.location.href = google_url
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, loginWithSteam, loginWithGoogle }}>
       {children}
     </AuthContext.Provider>
   )

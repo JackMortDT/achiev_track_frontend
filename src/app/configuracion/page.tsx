@@ -194,7 +194,7 @@ function ConfiguracionPageInner() {
               </label>
               <input
                 readOnly
-                value={currentUser.email}
+                value={currentUser.email ?? ''}
                 className="w-full bg-pixel-surface border-2 border-pixel-border text-pixel-muted font-mono text-xs p-2 cursor-not-allowed"
               />
             </div>
@@ -238,7 +238,9 @@ function ConfiguracionPageInner() {
           <div className="flex items-center gap-3 py-3">
             <span className="text-base">✉️</span>
             <span className="flex-1 text-pixel-text text-xs">Email + contraseña</span>
-            <span className="border border-pixel-cyan text-pixel-cyan text-xs px-2 py-0.5">ACTIVO</span>
+            {currentUser.email && (
+              <span className="border border-pixel-cyan text-pixel-cyan text-xs px-2 py-0.5">ACTIVO</span>
+            )}
           </div>
           <div className="flex items-center gap-3 py-3">
             <span className="text-base">🎮</span>

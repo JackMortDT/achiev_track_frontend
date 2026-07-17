@@ -22,7 +22,7 @@ const RA_CONFIG = {
 
 export function PlatformConnect({ connections, onUpdate }: PlatformConnectProps) {
   const { user } = useAuth()
-  const emailUnverified = user?.email_verified === false
+  const emailUnverified = !!user?.email && user?.email_verified === false
   const [showRAForm, setShowRAForm] = useState(false)
   const [externalId, setExternalId] = useState('')
   const [apiKey, setApiKey] = useState('')

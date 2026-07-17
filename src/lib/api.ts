@@ -31,7 +31,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
 export interface User {
   id: string
   username: string
-  email: string
+  email: string | null
   avatar_url: string | null
   email_verified: boolean
   inserted_at: string
@@ -210,6 +210,12 @@ export const auth = {
 
   logout: () =>
     apiFetch<void>('/api/logout', { method: 'DELETE' }),
+
+  steamLogin: (): Promise<{ steam_url: string }> =>
+    apiFetch('/api/auth/steam/login'),
+
+  googleLogin: (): Promise<{ google_url: string }> =>
+    apiFetch('/api/auth/google/login'),
 
   verifyEmail: (token: string) =>
     apiFetch<{ verified: boolean }>(`/api/verify-email/${token}`),

@@ -66,7 +66,10 @@ export function Nav() {
                 href="/configuracion"
                 className="flex items-center gap-2 hover:text-pixel-cyan transition-colors"
               >
-                <span className="text-base leading-none">{user.avatar_url || '●'}</span>
+                {user.avatar_url
+                  ? <img src={user.avatar_url} alt={user.username} className="w-6 h-6 object-cover" />
+                  : <span className="text-base leading-none">●</span>}
+
                 <span className="text-pixel-muted text-xs">{user.username}</span>
               </Link>
               <button

@@ -1,15 +1,17 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, FormEvent, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 import { ApiError } from '@/lib/api'
 import { PixelCard } from '@/components/PixelCard'
 
-export default function RegisterPage() {
-  const { register } = useAuth()
+function RegisterForm() {
+  const { register, loginWithSteam, loginWithGoogle } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const oauthError = searchParams.get('steam') === 'error' || searchParams.get('google') === 'error'
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -95,6 +97,35 @@ export default function RegisterPage() {
           </button>
         </form>
 
+        <div className="my-4 flex items-center gap-2">
+          <div className="flex-1 border-t border-pixel-border" />
+          <span className="text-pixel-muted text-xs">OR</span>
+          <div className="flex-1 border-t border-pixel-border" />
+        </div>
+
+        {oauthError && (
+          <div role="alert" className="mb-3 p-2 border border-pixel-red text-pixel-red text-sm">
+            OAuth login failed. Please try again.
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => loginWithSteam()}
+            className="w-full bg-[#1b2838] text-white py-2 font-mono hover:bg-opacity-80 transition-opacity border border-pixel-border"
+          >
+            [ ENTRAR CON STEAM ]
+          </button>
+          <button
+            type="button"
+            onClick={() => loginWithGoogle()}
+            className="w-full bg-pixel-bg border border-pixel-border text-pixel-text py-2 font-mono hover:border-pixel-cyan transition-colors"
+          >
+            [ ENTRAR CON GOOGLE ]
+          </button>
+        </div>
+
         <p className="mt-4 text-center text-pixel-muted text-sm">
           Have an account?{' '}
           <Link href="/login" className="text-pixel-cyan hover:underline">
@@ -103,5 +134,13 @@ export default function RegisterPage() {
         </p>
       </PixelCard>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
   )
 }

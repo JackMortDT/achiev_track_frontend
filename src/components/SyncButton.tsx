@@ -51,7 +51,7 @@ export function SyncButton({ initialStatus, variant = 'default' }: SyncButtonPro
     }
   }
 
-  const emailUnverified = user?.email_verified === false
+  const emailUnverified = !!user?.email && user.email_verified === false
   const disabled = !status.allowed || loading || emailUnverified
 
   if (variant === 'compact') {
